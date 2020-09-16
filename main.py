@@ -1,10 +1,10 @@
 import cv2
 import numpy as np
-
+import time
 middle = [(0,0,105),(30,40,140)] # works pretty wel
 green = [(0,90,100),(120,200,260)]
 yellow = [(0,240,250),(10,255,255)]
-dot_colors = [middle, green, yellow]
+dot_colors = [middle] #, green, yellow]
     
 img = cv2.imread('gam.jpg')   
 # apply medianBlur to smooth image before threshholding
@@ -17,11 +17,28 @@ for lower, upper in dot_colors:
 
     circles = cv2.HoughCircles(mask,cv2.HOUGH_GRADIENT,1,20,param1=20,param2=8,
                                minRadius=0,maxRadius=60)    
-    index = 0
+    index = 1
+    dupes = []
     if circles is not None:
+        print(len(circles[0]))
+        for i in circles[0]:
+            if index == len(circles[0]) - 1 | index == len(circles[0]):
+                continue 
+            for item in range(2):
+                #time.sleep(1)
+                print("first: " + str(circles[0][index][item]) + " second : " + str(circles[0][index - 1][item]) + " " +  str(item))
+                if (circles[0][index][item] + 200 > circles[0][index - 1][item])&(circles[0][index][item] - 200 < circles[0][index - 1][item]):
+                    print("AAAA")
+                    dupes.append(index)
+                  # circles = np.delete(circles, index,1)
+                    continue
+            index += 1
         # convert the (x, y) coordinates and radius of the circles to integers
+        #print(circles)
+        circles = np.delete(circles,dupes,1)
+        print(circles)
         circles = np.round(circles[0, :]).astype("int")
-
+        index = 0
         # loop over the (x, y) coordinates and radius of the circles
         for (x, y, r) in circles:
             # draw the circle in the output image, 
