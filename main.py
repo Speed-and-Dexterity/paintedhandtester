@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 import time
-middle = [(0,0,105),(30,40,140)] # works pretty wel
+middle = ["middle", (0,0,100),(30,40,140)] # works pretty wel
 green = [(0,90,100),(120,200,260)]
 yellow = [(0,240,250),(10,255,255)]
 dot_colors = [middle] #, green, yellow]
@@ -9,8 +9,24 @@ dot_colors = [middle] #, green, yellow]
 img = cv2.imread('gam.jpg')   
 # apply medianBlur to smooth image before threshholding
 blur= cv2.medianBlur(img, 7) # smooth image by 7x7 pixels, may need to adjust a bit
-
-for lower, upper in dot_colors:
+fingerpoints = {}
+def drawfinger(image, joints):
+    joints.sort(key=lambda l:l[1])
+    myjoints = []
+    for i in joints:
+        pass
+    #term_crit = (cv2.TERM_CRITERIA_EPS, 30, 0.1)
+    #skel = cv2.kmeans(joints,4, None,term_crit, 10, 0)
+    prevx, prevy = [0,0]
+    for x,y in gamer:
+        cv2.rectangle(image, (x - 5, y - 5), (x + 5, y + 5), (255, 0, 255), -1)
+        cv2.line(output, (x,y),(prevx,prevy),(255,0,0),8)
+        prevx = x
+        prevy = y
+    cv2.imshow("g", image)
+    cv2.waitKey()
+    return image
+for finger, lower, upper in dot_colors:
     output = img.copy()
     # apply threshhold color to white (255,255, 255) and the rest to black(0,0,0)
     mask = cv2.inRange(blur,lower,upper) 
@@ -40,14 +56,14 @@ for lower, upper in dot_colors:
         circles = np.round(circles[0, :]).astype("int")
         index = 0
         # loop over the (x, y) coordinates and radius of the circles
-        for (x, y, r) in circles:
-            # draw the circle in the output image, 
-            #   then draw a rectangle corresponding to the center of the circle
-            cv2.circle(output, (x, y), r, (255, 0, 255), 2)
-            cv2.rectangle(output, (x - 5, y - 5), (x + 5, y + 5), (255, 0, 255), -1)
+        # for (x, y, r) in circles:
+        #     # draw the circle in the output image, 
+        #     #   then draw a rectangle corresponding to the center of the circle
+        #     cv2.circle(output, (x, y), r, (255, 0, 255), 2)
+        #     cv2.rectangle(output, (x - 5, y - 5), (x + 5, y + 5), (255, 0, 255), -1)
 
-            index = index + 1
-            #print str(index) + " : " + str(r) + ", (x,y) = " + str(x) + ', ' + str(y)
-        cv2.imshow("gamer",output)
-        cv2.waitKey()
-        print("No. of circles detected =" + str(index))
+        #     index = index + 1
+        #     #print str(index) + " : " + str(r) + ", (x,y) = " + str(x) + ', ' + str(y)
+        fingerpoints[finger] = [[g[0],g[1]] for g in circles]
+gamer = fingerpoints["middle"]
+drawfinger(output,gamer)
