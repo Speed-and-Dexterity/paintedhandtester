@@ -6,7 +6,7 @@ red = ["red", (0,0,20),(20,20,100)] # works pretty wel
 white = ["white",(90,90,90),(150,170,170)]
 hasFrame, frame = cap.read()
 vid_writer = cv2.VideoWriter('output.avi',cv2.VideoWriter_fourcc('M','J','P','G'), 15, (frame.shape[1],frame.shape[0]))
-
+redfingernames = ["RPinky","RMiddle","RThumb","LThumb","RMiddle","RPinky"]
 while(1):
     _, frame = cap.read()
     frameWidth = frame.shape[1]
@@ -39,10 +39,17 @@ while(1):
     contour_sizes.sort(reverse=True, key=lambda  x: x[0])
     gaming = contour_sizes[:6]
     biggest_contour = max(contour_sizes, key=lambda x: x[0])[1]
+    fingies = []
     for i in gaming:         
       x,y,w,h = cv2.boundingRect(i[1])
-      cv2.rectangle(frame,(x,y),(x+w,y+h),(0,255,0),2)
-
+      fingies.append(cv2.boundingRect(i[1]))
+    fingies.sort(key = lambda x: x[0])
+    tick = 0
+    for i in fingies:
+      x,y,w,h = i
+      cv2.putText(frame, redfingernames[tick], (x, y-10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (36,255,12), 2)
+      cv2.rectangle(frame,(x,y),(x+w,y+h),(0,0,255),2)
+      tick += 1
 # Draw contours:
     cv2.imshow("gamer",frame)
     vid_writer.write(frame)
