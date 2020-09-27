@@ -8,6 +8,7 @@ hasFrame, frame = cap.read()
 vid_writer = cv2.VideoWriter('output.avi',cv2.VideoWriter_fourcc('M','J','P','G'), 15, (frame.shape[1],frame.shape[0]))
 redfingernames = ["RPinky","RMiddle","RThumb","LThumb","RMiddle","RPinky"]
 whitefingernames = ["LRing","LPointer","LPointer","LRing"]
+fingiedata = []
 def getfingers(image, color):
     if color == "red":
       names = redfingernames
@@ -19,40 +20,47 @@ def getfingers(image, color):
       upper = white[2]
     nfingers = len(names)
     mask = cv2.inRange(image, lower, upper)
-    contours, hierarchy = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    contours, _ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     contour_sizes = [(cv2.contourArea(contour), contour) for contour in contours] 
     contour_sizes.sort(reverse=True, key=lambda  x: x[0])
     fingers = contour_sizes[:nfingers]
     fingies = []
     for i in fingers:         
-      # x,y,w,h = cv2.boundingRect(i[1])
-      #x,y,w,h = cv2.minAreaRect(i[1])
       fingies.append(cv2.minAreaRect(i[1]))
     fingies.sort(key = lambda x: x[0])
     tick = 0
-
+    fingieposes = []
     for i in fingies:
-      x,y,w = i
-   #   cv2.putText(image, names[tick], (x, y-10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (36,255,12), 2)
-      #cv2.rectangle(image,(x,y),(x+w,y+h),(0,0,255),2)
-    #  rect = cv2.minAreaRect(i)
       box = cv2.boxPoints(i)
       box = np.int0(box)
       image = cv2.drawContours(image,[box],0,(0,0,255),2)
-
+      box = sorted(box,reverse=True, key=lambda x:x[1])
+      box = np.int0(box)[:2]
+      tip = (int(abs(box[0][0] + box[1][0]) / 2),int(abs(box[0][1] + box[1][1]) / 2))
+      fingieposes.append([tip,names[tick]])
+      image = cv2.circle(image,tip,4,(0,0,255),4)
+    #  break
       tick += 1
-    return image
+    return fingieposes
 while(1):
     _, frame = cap.read()
-    frameWidth = frame.shape[1]
+    try:
+      frameWidth = frame.shape[1]
+    except:
+      break
     frameHeight = frame.shape[0]
-    getfingers(frame,"red")
-    getfingers(frame,"white")
+    gam = getfingers(frame,"red")
+    gamm = getfingers(frame,"white")
+    fingiedata.append(gam + gamm)
     cv2.imshow("gamer",frame)
     vid_writer.write(frame)
+
     k = cv2.waitKey(5) & 0xFF
     if k == 27:
         break
 vid_writer.release()
 cv2.destroyAllWindows()
 cap.release()
+with open('listfile.txt', 'w+') as filehandle:
+  for gamer in fingiedata:
+    filehandle.write('%s\n' % gamer)
