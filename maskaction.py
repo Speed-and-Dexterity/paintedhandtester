@@ -1,6 +1,5 @@
 import cv2
 import numpy as np
-from sklearn.cluster import KMeans
 cap = cv2.VideoCapture("croppednygiants.mp4")
 red = ["red", (0,0,20),(20,20,100)] # works pretty wel
 white = ["white",(70,40,50),(150,170,170)]
@@ -44,6 +43,7 @@ def getfingers(image, color):
       tick += 1
     return fingieposes
 frameticker = 1
+fps = cap.get(cv2.CAP_PROP_FPS)
 while(1):
     _, frame = cap.read()
     try:
@@ -53,7 +53,7 @@ while(1):
     frameHeight = frame.shape[0]
     gam = getfingers(frame,"red")
     gamm = getfingers(frame,"white")
-    fingiedata.append([frameticker,gam + gamm])
+    fingiedata.append([frameticker/fps,gam + gamm])
     cv2.imshow("gamer",frame)
     vid_writer.write(frame)
 
