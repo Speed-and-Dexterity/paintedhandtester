@@ -9,6 +9,7 @@ vid_writer = cv2.VideoWriter('output.avi',cv2.VideoWriter_fourcc('M','J','P','G'
 redfingernames = ["RPinky","RMiddle","RThumb","LThumb","RMiddle","RPinky"]
 whitefingernames = ["LRing","LPointer","LPointer","LRing"]
 fingiedata = []
+
 def getfingers(image, color):
     if color == "red":
       names = redfingernames
@@ -42,6 +43,7 @@ def getfingers(image, color):
     #  break
       tick += 1
     return fingieposes
+frameticker = 1
 while(1):
     _, frame = cap.read()
     try:
@@ -51,13 +53,14 @@ while(1):
     frameHeight = frame.shape[0]
     gam = getfingers(frame,"red")
     gamm = getfingers(frame,"white")
-    fingiedata.append(gam + gamm)
+    fingiedata.append([frameticker,gam + gamm])
     cv2.imshow("gamer",frame)
     vid_writer.write(frame)
 
     k = cv2.waitKey(5) & 0xFF
     if k == 27:
         break
+    frameticker += 1
 vid_writer.release()
 cv2.destroyAllWindows()
 cap.release()
