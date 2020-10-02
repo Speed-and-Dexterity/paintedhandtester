@@ -1,14 +1,39 @@
 import cv2
 import numpy as np
-cap = cv2.VideoCapture("croppednygiants.mp4")
-red = ["red", (0,0,20),(20,20,100)] # works pretty wel
-white = ["white",(70,40,50),(150,170,170)]
+#keys spaced ~ 68px horizontally and 60px vertically, b key is at ~720,128
+cap = cv2.VideoCapture("lightednygloves.mp4")
+red = ["red", (30,30,170),(100,100,255)] # works pretty wel
+white = ["white",(230,230,230),(255,255,255)]
 hasFrame, frame = cap.read()
 vid_writer = cv2.VideoWriter('output.avi',cv2.VideoWriter_fourcc('M','J','P','G'), 15, (frame.shape[1],frame.shape[0]))
 redfingernames = ["RPinky","RMiddle","RThumb","LThumb","RMiddle","RPinky"]
 whitefingernames = ["LRing","LPointer","LPointer","LRing"]
 fingiedata = []
-
+def click_event(event, x, y, flags, params): 
+    if event == cv2.EVENT_LBUTTONDOWN: 
+        print(x, ' ', y) 
+        font = cv2.FONT_HERSHEY_SIMPLEX 
+        cv2.putText(frame, str(x) + ',' +
+                    str(y), (x,y), font, 
+                    1, (255, 0, 0), 2) 
+        cv2.imshow('image', frame) 
+    if event==cv2.EVENT_RBUTTONDOWN: 
+  
+        # displaying the coordinates 
+        # on the Shell 
+        print(x, ' ', y) 
+  
+        # displaying the coordinates 
+        # on the image window 
+        font = cv2.FONT_HERSHEY_SIMPLEX 
+        b = frame[y, x, 0] 
+        g = frame[y, x, 1] 
+        r = frame[y, x, 2] 
+        cv2.putText(frame, str(b) + ',' +
+                    str(g) + ',' + str(r), 
+                    (x,y), font, 1, 
+                    (255, 255, 0), 2) 
+        cv2.imshow('image', frame) 
 def getfingers(image, color):
     if color == "red":
       names = redfingernames
@@ -51,6 +76,9 @@ while(1):
     except:
       break
     frameHeight = frame.shape[0]
+   # cv2.imshow("clickme",frame)
+    cv2.setMouseCallback("image", click_event)
+   # cv2.waitKey(0)
     gam = getfingers(frame,"red")
     gamm = getfingers(frame,"white")
     fingiedata.append([frameticker/fps,gam + gamm])
